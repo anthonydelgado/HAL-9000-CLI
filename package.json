@@ -1,0 +1,30 @@
+{
+  "name": "hal",
+  "version": "1.0.0",
+  "description": "Artificial Intelligence, Digital Person Assistant and Sentient Analysis Bot written in Node",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anthonydelgado/HAL-9000-CLI.git"
+  },
+  "author": "anthony",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anthonydelgado/HAL-9000-CLI/issues"
+  },
+  "homepage": "https://github.com/anthonydelgado/HAL-9000-CLI#readme",
+  "dependencies": {
+    "afplay": "^1.0.3",
+    "apiai": "^2.0.7",
+    "colors": "^1.1.2",
+    "geocoder": "^0.2.2",
+    "request": "^2.75.0",
+    "spotify": "^0.3.0",
+    "twilio": "^2.11.0",
+    "twitter": "^1.4.0",
+    "weather-js": "^1.0.2"
+  }
+}
