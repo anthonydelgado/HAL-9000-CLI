@@ -2,7 +2,12 @@
 var weather = require('weather-js');
 var geocoder = require('geocoder');
 var colors = require('colors');
-
+// Dependencies
+var fs = require('fs');
+var url = require('url');
+var http = require('http');
+var exec = require('child_process').exec;
+var spawn = require('child_process').spawn;
 
 var command = process.argv[2];
 var q = "";
@@ -25,6 +30,10 @@ switch(command) {
     case 'break':
         console.log('You want me to break things!');
         break;
+    case 'spotify':
+        console.log('You want to listen to spotify!');
+        spotifyLookup(q);
+        break;
     default:
         console.log('Im sorry Dave, Im afraid I cant do that');
 }
@@ -42,8 +51,21 @@ function search() {
 
 }
 
-function spotifyLookup() {
-    
+function spotifyLookup(term) {
+
+    var spotify = require('spotify');
+
+    spotify.search({ type: 'track', query: term }, function(err, data) {
+        if ( err ) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
+
+        console.log(data);
+        console.log(data.tracks.items[0].preview_url);
+        downloadMP3(data.tracks.items[0].preview_url);
+        // Do something with 'data'
+    });
 }
 
 function movieLookup() {
@@ -51,10 +73,10 @@ function movieLookup() {
 }
 
 
-function weatherLookup() {
+function weatherLookup(term) {
 
 // Then we use the package to search for the weather at a location
-    weather.find({search: process.argv[3], degreeType: "F"}, function(err, result){
+    weather.find({search: term, degreeType: "F"}, function(err, result){
 
         // If there is an error log it.
         if(err) {
@@ -72,10 +94,10 @@ function weatherLookup() {
     });
 }
 
-function geoLookup() {
+function geoLookup(term) {
 
     // Geocoding
-    geocoder.geocode(q, function ( err, data ) {
+    geocoder.geocode(term, function ( err, data ) {
 
         // If there is an error log it.
         if(err) {
@@ -88,6 +110,47 @@ function geoLookup() {
         }
     });
 
+}
+
+function downloadMP3(file_url) {
+
+// App variables
+//     var file_url = 'http://upload.wikimedia.org/wikipedia/commons/4/4f/Big%26Small_edit_1.jpg';
+    var DOWNLOAD_DIR = './downloads/';
+
+// We will be downloading the files to a directory, so make sure it's there
+// This step is not required if you have manually created the directory
+    var mkdir = 'mkdir -p ' + DOWNLOAD_DIR;
+    var child = exec(mkdir, function(err, stdout, stderr) {
+        if (err) throw err;
+        else download_file_httpget(file_url);
+    });
+
+// Function to download file using HTTP.get
+    var download_file_httpget = function(file_url) {
+        var options = {
+            host: url.parse(file_url).host,
+            port: 80,
+            path: url.parse(file_url).pathname
+        };
+
+        var file_name = url.parse(file_url).pathname.split('/').pop();
+        var file = fs.createWriteStream(DOWNLOAD_DIR + file_name);
+
+        http.get(options, function(res) {
+            res.on('data', function(data) {
+                file.write(data);
+            }).on('end', function() {
+                file.end();
+                console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
+                playMP3(DOWNLOAD_DIR + '' + file_name)
+            });
+        });
+    };
+}
+
+function playMP3(file) {
+
 
     let Afplay = require('afplay');
 
@@ -95,12 +158,13 @@ function geoLookup() {
     let player = new Afplay;
 
 // Play a sound, handle result within a Promise
-    player.play('./assets/sounds/grunt.mp3')
+    player.play(file)
         .then(() => {
             console.log('Audio done playing');
         })
         .catch(error => {
             console.log('Error playing file');
-        });
+            console.log(error);
 
+        });
 }
