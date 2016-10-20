@@ -2,6 +2,7 @@
 var weather = require('weather-js');
 var geocoder = require('geocoder');
 var colors = require('colors');
+var say = require('say');
 // Dependencies
 var fs = require('fs');
 var url = require('url');
@@ -22,20 +23,28 @@ switch(command) {
         search();
         break;
     case 'weather':
-        weatherLookup();
+        say.speak( 'Looking up the weather in ' + q + ' from the Microsoft Weather API.');
+        weatherLookup(q);
         break;
     case 'geo':
-        geoLookup();
+        geoLookup(q);
         break;
     case 'break':
         console.log('You want me to break things!');
         break;
     case 'spotify':
         console.log('You want to listen to spotify!');
+        say.speak( 'Playing ' + q + ' songs from spotify.');
         spotifyLookup(q);
         break;
+    case 'play':
+        console.log('You want to listen to spotify!');
+
+        spotifyLookup(q);
+
+        break;
     default:
-        console.log('Im sorry Dave, Im afraid I cant do that');
+        say.speak('I am sorry Dave, Im afraid I cant do that');
 }
 
 
@@ -152,19 +161,27 @@ function downloadMP3(file_url) {
 function playMP3(file) {
 
 
-    let Afplay = require('afplay');
+    say.speak( 'Playing popular ' + q + ' songs from spotify.','Alex',1, function (err) {
+        if (err) {
+            return console.error(err);
+        }
+
+        let Afplay = require('afplay');
 
 // Instantiate a new player
-    let player = new Afplay;
+        let player = new Afplay;
 
 // Play a sound, handle result within a Promise
-    player.play(file)
-        .then(() => {
-            console.log('Audio done playing');
-        })
-        .catch(error => {
-            console.log('Error playing file');
-            console.log(error);
+        player.play(file)
+            .then(() => {
+                console.log('Audio done playing');
+            })
+            .catch(error => {
+                console.log('Error playing file');
+                console.log(error);
 
-        });
+            });
+
+    });
+
 }
